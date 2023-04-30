@@ -148,9 +148,9 @@ public class ManageScreen extends JPanel {
     private void filterButtonPressed (boolean [] needFilter,String [] filterBy){
         needFilter[Constants.PCLASS_FILTER]= checkIfPClassFill( (String)  pClassComboBox.getSelectedItem());
         filterBy[Constants.PCLASS_FILTER] =  (String)  pClassComboBox.getSelectedItem();
-        needFilter[Constants.MIN_ID_FILTER] = checkIfMinOrMaxIdFill(minPassengerIdField.getText().trim(),maxPassengerIdField.getText().trim());
+        needFilter[Constants.MIN_ID_FILTER] = checkIfMinIdFill(minPassengerIdField.getText().trim());
        filterBy[Constants.MIN_ID_FILTER] = minPassengerIdField.getText().trim();
-        needFilter[Constants.MAX_ID_FILTER] = checkIfMinOrMaxIdFill(minPassengerIdField.getText().trim(),maxPassengerIdField.getText().trim());
+        needFilter[Constants.MAX_ID_FILTER] = checkIfMaxIdFill(maxPassengerIdField.getText().trim());
        filterBy[Constants.MAX_ID_FILTER] = maxPassengerIdField.getText().trim();
         needFilter[Constants.NAME_FILTER]=checkIfNameFill(passengerNameField.getText().trim());
        filterBy[Constants.NAME_FILTER] = passengerNameField.getText().trim();
@@ -160,9 +160,9 @@ public class ManageScreen extends JPanel {
        filterBy[Constants.SIBSP_FILTER] = sibSpPassengerField.getText().trim();
         needFilter[Constants.PARCH_FILTER] = checkIfNumberInTxtBox(passengerParchField.getText().trim());
        filterBy[Constants.PARCH_FILTER] = passengerParchField.getText().trim();
-        needFilter[Constants.MAX_TICKET_COST_FILTER]=checkMinOrMaxFareFill(minPassengerTicketFareField.getText().trim(),maxPassengerTicketFareField.getText().trim());
+        needFilter[Constants.MAX_TICKET_COST_FILTER]=checkMaxFareFill(maxPassengerTicketFareField.getText().trim());
         filterBy[Constants.MAX_TICKET_COST_FILTER] = maxPassengerTicketFareField.getText().trim();
-        needFilter[Constants.MIN_TICKET_COST_FILTER]=checkMinOrMaxFareFill(minPassengerTicketFareField.getText().trim(),maxPassengerTicketFareField.getText().trim());
+        needFilter[Constants.MIN_TICKET_COST_FILTER]=checkMinFareFill(minPassengerTicketFareField.getText().trim());
         filterBy[Constants.MIN_TICKET_COST_FILTER] = minPassengerTicketFareField.getText().trim();
         needFilter[Constants.TICKET_NUM_FILTER] = checkInTicketNumFill(passengerTicketField.getText().trim());
         filterBy[Constants.TICKET_NUM_FILTER] = passengerTicketField.getText().trim();
@@ -378,6 +378,22 @@ public class ManageScreen extends JPanel {
 
         return result;
     }
+    private boolean checkIfMinIdFill (String min){
+        boolean result=false;
+        boolean minIdNotNull = checkIfNumberInTxtBox(min);
+        if (minIdNotNull){
+            result = Integer.parseInt(min)>=0;
+        }
+        return result;
+    }
+    private boolean checkIfMaxIdFill (String max){
+        boolean result=false;
+        boolean minIdNotNull = checkIfNumberInTxtBox(max);
+        if (minIdNotNull){
+            result = Integer.parseInt(max)>=0;
+        }
+        return result;
+    }
     private boolean checkMinOrMaxFareFill (String minFare,String maxFare){
         boolean result=false;
         boolean minFareNotNull = checkIfNumberInTxtBox(minFare);
@@ -392,6 +408,22 @@ public class ManageScreen extends JPanel {
             result=true;
         }
 
+        return result;
+    }
+    private boolean checkMinFareFill (String min){
+        boolean result=false;
+        boolean minFareNotNull = checkIfNumberInTxtBox(min);
+        if (minFareNotNull){
+            result = Integer.parseInt(min)<=0;
+        }
+        return result;
+    }
+    private boolean checkMaxFareFill (String max){
+        boolean result=false;
+        boolean maxFareNotNull = checkIfNumberInTxtBox(max);
+        if (maxFareNotNull){
+            result = Integer.parseInt(max)>=0;
+        }
         return result;
     }
     private boolean checkIfNumberInTxtBox (String num){
