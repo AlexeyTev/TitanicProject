@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.util.ArrayList;
 
 class Titanic extends JFrame {
 
