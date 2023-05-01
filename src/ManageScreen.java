@@ -279,7 +279,7 @@ public class ManageScreen extends JPanel {
                     }
                 }
                 if (!keepFilteringPassenger) {
-                //    result.remove(i);
+                   result.remove(i);
                     result.add(i,null);
                 }
             }
