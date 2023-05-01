@@ -68,9 +68,6 @@ public static final int MAX_FILTERS = 12;
     public static final String FILTER_OUTPUT_BASE = "Total Rows:";
     public static final int TOTAL_P_CLASSES= 3;
     public static final int TOTAL_SEX= 2;
-    public static final int TOTAL_AGE_GROUPS= 6;
-    public static final int TOTAL_FAMILY= 2;
-    public static final int TOTAL_FARE_GROUPS= 3;
-    public static final int TOTAL_EMBARK_OPTIONS= 3;
 
+    public static final String STATS_NAME = "stats";
 }

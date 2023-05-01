@@ -1,10 +1,12 @@
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.List;
 
 public class Stats {
 
-    public void writeSurvivalRatesToFile(List<Passenger> passengers) {
+
+    public void writeSurvivalRatesToFile(List<Passenger> passengers, File file) {
         int[] groupCounts = new int[14];
         int[] groupSurvivedCounts = new int[14];
 
@@ -92,8 +94,7 @@ public class Stats {
                 }
             }
         }
-        // Calculate the survival rates for each group and write them to the text file
-        try (PrintWriter writer = new PrintWriter("src/data/stats.txt")) {
+        try (PrintWriter writer = new PrintWriter(file)) {
             String[] groupLabels = {
                     "First Class",
                     "Second Class",
@@ -122,6 +123,7 @@ public class Stats {
         } catch (FileNotFoundException e) {
             System.out.println("File not found: " + e.getMessage());
         }
+
 
     }
 }

@@ -23,6 +23,7 @@ public class ManageScreen extends JPanel {
             File file = new File(Constants.PATH_TO_DATA_FILE); //this is the path to the data file
             if (file.exists()) {
                 allPassengers = readerFromCsv();
+
                 this.setLayout(null);
                 this.setBounds(x, y + Constants.MARGIN_FROM_TOP, width, height);
                 JLabel pClassLabel = new JLabel("Passenger Class: ");
@@ -127,17 +128,20 @@ public class ManageScreen extends JPanel {
                 filter.setBounds(Constants.BUTTON_X, Constants.BUTTON_Y, Constants.BUTTON_WIDTH, Constants.BUTTON_HEIGHT);
                 this.add(filter);
                     filter.addActionListener(e -> {
-                        ArrayList<Passenger>allPassengersTemp = this.allPassengers;
+
                         boolean [] needFilter=new boolean [Constants.MAX_FILTERS];
                         String [] filterBy=new String [Constants.MAX_FILTERS];
                         filterButtonPressed(needFilter,filterBy);
-                           String filterOutput = getFilterResult(allPassengersTemp, needFilter, filterBy);
+                           String filterOutput = getFilterResult(allPassengers, needFilter, filterBy);
                            printFilterResult(filterOutput,filterOutputLabel);
                     });
-            JButton stats = new JButton("STATS");
+            JButton stats = new JButton("CREATE STATS");
             stats.setBounds(filter.getX(),filter.getY()-Constants.BUTTON_HEIGHT,Constants.BUTTON_WIDTH,Constants.BUTTON_HEIGHT-10);
             this.add(stats);
-            stats.addActionListener(e -> new Stats());
+            stats.addActionListener(e -> {
+                Stats stats1 = new Stats();
+                stats1.writeSurvivalRatesToFile(allPassengers,createFile(Constants.TXT_FINISHER));
+            });
             }
     }
 
@@ -179,7 +183,10 @@ public class ManageScreen extends JPanel {
 
 
     private String getFilterResult(ArrayList<Passenger>allPassengers, boolean[]needFilter, String[]filterBy){
-        ArrayList<Passenger>result=allPassengers;
+        ArrayList<Passenger>result = new ArrayList<>();
+        for (Passenger allPassenger : allPassengers) {
+            result.add(allPassenger);
+        }
         Passenger current;
         for (int i = 0 ; i < allPassengers.size();i++){
             int filterCounter = 0;
@@ -272,7 +279,7 @@ public class ManageScreen extends JPanel {
                     }
                 }
                 if (!keepFilteringPassenger) {
-                    result.remove(i);
+                //    result.remove(i);
                     result.add(i,null);
                 }
             }
@@ -311,8 +318,13 @@ public class ManageScreen extends JPanel {
     }
 
     private File createFile(String type) {
-        String fileNumber = getCsvFileNumber();
-        File file = new File(Constants.FILTER_PATH_NEW_FILE + " " + fileNumber + type);
+        String fileName="";
+        if (type.equals(Constants.CSV_FINISHER)) {
+            fileName = getCsvFileNumber();
+        }else if (type.equals(Constants.TXT_FINISHER)){
+            fileName=Constants.STATS_NAME;
+        }
+        File file = new File(Constants.FILTER_PATH_NEW_FILE + " " + fileName + type);
         boolean success = false;
         if (!file.exists()) {
             try {
@@ -321,9 +333,9 @@ public class ManageScreen extends JPanel {
                 System.out.println("Error creating the file: " + e.getMessage());
             }
         }
-        if (success){
-            System.out.println("file number:" + fileNumber + " success");
-            int updatedFileNumber = Integer.parseInt(fileNumber);
+        if (success && type.equals(Constants.CSV_FINISHER)){
+            System.out.println("file number:" + fileName + " success");
+            int updatedFileNumber = Integer.parseInt(fileName);
             updatedFileNumber++;
             File csvFile = new File(Constants.PATH_TO_CSV_FILE_NUMBER);
             writeToFile(csvFile,updatedFileNumber+"");
