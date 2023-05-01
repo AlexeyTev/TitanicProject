@@ -15,10 +15,9 @@ public class ManageScreen extends JPanel {
     private JTextField passengerCabinField;
     private JComboBox<String> passengerEmbarkedComboBox;
     private JComboBox<String> sexOfPassengerComboBox;
-    private JButton filter;
     private JComboBox<String> pClassComboBox;
     private ArrayList<Passenger> allPassengers;
-    private ArrayList<Passenger> filteredPassengers;
+
     public ManageScreen(int x, int y, int width, int height) {
 
             File file = new File(Constants.PATH_TO_DATA_FILE); //this is the path to the data file
@@ -120,31 +119,36 @@ public class ManageScreen extends JPanel {
                 this.passengerEmbarkedComboBox = new JComboBox<>(Constants.PASSENGER_EMBARKED_OPTIONS);
                 this.passengerEmbarkedComboBox.setBounds(minPassengerIdLabel.getX() + passengerEmbarkedLabel.getWidth() + 1, passengerEmbarkedLabel.getY(), Constants.COMBO_BOX_WIDTH, Constants.COMBO_BOX_HEIGHT);
                 this.add(passengerEmbarkedComboBox);
+                JLabel filterOutputLabel = new JLabel();
+                filterOutputLabel.setBounds(Constants.BUTTON_X,Constants.BUTTON_Y+50,Constants.LABEL_WIDTH*3,Constants.LABEL_HEIGHT);
+                this.add(filterOutputLabel);
 
                 JButton filter = new JButton("FILTER");
                 filter.setBounds(Constants.BUTTON_X, Constants.BUTTON_Y, Constants.BUTTON_WIDTH, Constants.BUTTON_HEIGHT);
                 this.add(filter);
                     filter.addActionListener(e -> {
+                        ArrayList<Passenger>allPassengersTemp = this.allPassengers;
                         boolean [] needFilter=new boolean [Constants.MAX_FILTERS];
                         String [] filterBy=new String [Constants.MAX_FILTERS];
                         filterButtonPressed(needFilter,filterBy);
-                           String filterOutput = getFilterResult(allPassengers, needFilter, filterBy);
-                           JLabel filterOutputLabel = new JLabel("Result:");
-                        filterOutputLabel.setBounds(filter.getX()-50,filter.getY()+Constants.LABEL_HEIGHT,Constants.LABEL_WIDTH*3,Constants.LABEL_HEIGHT);
-                        this.add(filterOutputLabel);
-                           if (filterOutput!="") {
-                               filterOutputLabel.setText(filterOutput);
-                               this.add(filterOutputLabel);
-                           }
+                           String filterOutput = getFilterResult(allPassengersTemp, needFilter, filterBy);
+                           printFilterResult(filterOutput,filterOutputLabel);
                     });
             JButton stats = new JButton("STATS");
             stats.setBounds(filter.getX(),filter.getY()-Constants.BUTTON_HEIGHT,Constants.BUTTON_WIDTH,Constants.BUTTON_HEIGHT-10);
             this.add(stats);
-            stats.addActionListener(e -> {
-                Stats st = new Stats ();
-            });
+            stats.addActionListener(e -> new Stats());
             }
     }
+
+    private void printFilterResult(String filterOutput,JLabel filterOutputLabel) {
+        if (filterOutput!="") {
+            filterOutputLabel.setText(filterOutput);
+            this.add(filterOutputLabel);
+        }
+
+    }
+
     private void filterButtonPressed (boolean [] needFilter,String [] filterBy){
         needFilter[Constants.PCLASS_FILTER]= checkIfPClassFill( (String)  pClassComboBox.getSelectedItem());
         filterBy[Constants.PCLASS_FILTER] =  (String)  pClassComboBox.getSelectedItem();
@@ -201,8 +205,8 @@ public class ManageScreen extends JPanel {
                         case Constants.MAX_ID_FILTER -> {
                             if (needFilter[Constants.MIN_ID_FILTER] && needFilter[Constants.MAX_ID_FILTER]) {
                                 keepFilteringPassenger = current.matchesPassengerId(filterBy[Constants.MIN_ID_FILTER], filterBy[Constants.MAX_ID_FILTER]);
-                            } else if (needFilter[Constants.MIN_ID_FILTER]) {
-                                keepFilteringPassenger = current.matchesPassengerId(filterBy[Constants.MIN_ID_FILTER], Constants.MAX_ID_VALUE);
+                            } else if (needFilter[Constants.MAX_ID_FILTER]) {
+                                keepFilteringPassenger = current.matchesPassengerId(filterBy[Constants.MAX_ID_FILTER], Constants.MAX_ID_VALUE);
                             }
                             filterCounter++;
                         }
@@ -241,8 +245,8 @@ public class ManageScreen extends JPanel {
                         case Constants.MAX_TICKET_COST_FILTER -> {
                             if (needFilter[Constants.MIN_TICKET_COST_FILTER] && needFilter[Constants.MAX_TICKET_COST_FILTER]) {
                                 keepFilteringPassenger = current.matchesPassengerFare(filterBy[Constants.MIN_TICKET_COST_FILTER], filterBy[Constants.MAX_TICKET_COST_FILTER]);
-                            } else if (needFilter[Constants.MIN_TICKET_COST_FILTER]) {
-                                keepFilteringPassenger = current.matchesPassengerFare(filterBy[Constants.MIN_TICKET_COST_FILTER], Constants.MAX_TICKET_COST_VALUE);
+                            } else if (needFilter[Constants.MAX_TICKET_COST_FILTER]) {
+                                keepFilteringPassenger = current.matchesPassengerFare(filterBy[Constants.MAX_TICKET_COST_FILTER], Constants.MAX_TICKET_COST_VALUE);
                             }
                             filterCounter++;
                         }
@@ -274,9 +278,9 @@ public class ManageScreen extends JPanel {
             }
         }
         ArrayList<Passenger>temp = new ArrayList<>();
-        for (int i = 0 ; i <result.size();i++){
-            if (result.get(i)!=null){
-                temp.add(result.get(i));
+        for (Passenger passenger : result) {
+            if (passenger != null) {
+                temp.add(passenger);
             }
         }
         result=temp;
@@ -288,8 +292,8 @@ public class ManageScreen extends JPanel {
     private String getFilterOutPut(ArrayList<Passenger> result) {
         String output = Constants.FILTER_OUTPUT_BASE;
         int survivedCounter=0;
-        for (int i = 0; i <result.size();i++){
-            if (result.get(i).survived()) {
+        for (Passenger passenger : result) {
+            if (passenger.survived()) {
                 survivedCounter++;
             }
         }
@@ -299,9 +303,9 @@ public class ManageScreen extends JPanel {
 
     private void createCsvFile(ArrayList<Passenger> result) {
      String content =Constants.CSV_FILE_COLUMN_HEADLINES;
-     for (int i = 0 ; i < result.size();i++){
-         content+="\n"+result.get(i).toString();
-     }
+        for (Passenger passenger : result) {
+            content += "\n" + passenger.toString();
+        }
      File newFile = createFile(Constants.CSV_FINISHER);
      writeToFile(newFile,content);
     }
@@ -362,22 +366,7 @@ public class ManageScreen extends JPanel {
     private boolean checkIfNameFill (String name){
         return !name.equals("");
     }
-    private boolean checkIfMinOrMaxIdFill(String minId, String maxId){
-        boolean result=false;
-        boolean minIdNotNull = checkIfNumberInTxtBox(minId);
-        boolean maxIdNotNull = checkIfNumberInTxtBox(maxId);
-        if (minIdNotNull){
-            if (maxIdNotNull){
-                result = Integer.parseInt(minId)>=0 && Integer.parseInt(minId)<=Integer.parseInt(maxId);
-            }else {
-                result = Integer.parseInt(minId)>=0;
-            }
-        }else if (maxIdNotNull){
-            result = Integer.parseInt(maxId)<allPassengers.size();
-        }
 
-        return result;
-    }
     private boolean checkIfMinIdFill (String min){
         boolean result=false;
         boolean minIdNotNull = checkIfNumberInTxtBox(min);
@@ -394,27 +383,12 @@ public class ManageScreen extends JPanel {
         }
         return result;
     }
-    private boolean checkMinOrMaxFareFill (String minFare,String maxFare){
-        boolean result=false;
-        boolean minFareNotNull = checkIfNumberInTxtBox(minFare);
-        boolean maxFareNotNull = checkIfNumberInTxtBox(maxFare);
-        if (minFareNotNull){
-            if (maxFareNotNull){
-                result = Double.parseDouble(minFare)>=0 && Double.parseDouble(minFare)<=Double.parseDouble(maxFare);
-            }else {
-                result = Double.parseDouble(minFare)>=0;
-            }
-        }else if (maxFareNotNull){
-            result=true;
-        }
 
-        return result;
-    }
     private boolean checkMinFareFill (String min){
         boolean result=false;
         boolean minFareNotNull = checkIfNumberInTxtBox(min);
         if (minFareNotNull){
-            result = Integer.parseInt(min)<=0;
+            result = Double.parseDouble(min)>=0;
         }
         return result;
     }
@@ -427,7 +401,7 @@ public class ManageScreen extends JPanel {
         return result;
     }
     private boolean checkIfNumberInTxtBox (String num){
-        boolean result = true;
+        boolean result;
         try {
             double number = Double.parseDouble(num);
             result = number>=0;
@@ -437,7 +411,7 @@ public class ManageScreen extends JPanel {
         return result;
     }
 public static ArrayList<Passenger> readerFromCsv (){
-    String line = "";
+    String line;
 
     ArrayList<Passenger>titanicPassengers = new ArrayList<>();
     try

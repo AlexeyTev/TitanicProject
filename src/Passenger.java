@@ -128,8 +128,8 @@ public class Passenger {
     public boolean matchesPassengerId(String id, boolean isMaxId) {
         boolean result;
         if (isMaxId) {
-            result = Integer.parseInt(id) <= this.passengerId;
-        } else result = Integer.parseInt(id) >= this.passengerId;
+            result = Integer.parseInt(id) >= this.passengerId;
+        } else result = Integer.parseInt(id) <= this.passengerId;
         return result;
     }
 
@@ -163,8 +163,8 @@ public class Passenger {
     public boolean matchesPassengerFare(String fare, boolean isMaxFare) {
         boolean result;
         if (isMaxFare) {
-            result = Integer.parseInt(fare) <= this.fare;
-        } else result = Integer.parseInt(fare) >= this.fare;
+            result = Integer.parseInt(fare) >= this.fare;
+        } else result = Integer.parseInt(fare) <= this.fare;
         return result;
     }
 
